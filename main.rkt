@@ -39,7 +39,7 @@
        [covhash "sdf"]
        ;[covhash (read-line (current-input-port))]
        [js-str (jsexpr->string (coinid->hashmap (CoinID covhash 0)))])
-  (println js-str)
-  (println (map-mels-to-hm (exec-env covhash)))
-  (println (jsexpr->string (map-mels-to-hm (exec-env covhash))))
-  (write-json js-str (open-output-file "tmp.test")))
+  ;(println js-str)
+  ;(println (map-mels-to-hm (exec-env covhash)))
+  (println (jsexpr->string (map-mels-to-hm (exec-env covhash)))))
+  ;(write-json js-str (open-output-file "tmp.test")))

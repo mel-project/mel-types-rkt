@@ -37,7 +37,7 @@
 [CovEnv ([coin-id : CoinID]
          [coin-data-height : CoinDataHeight]
          [spender-index : Integer]
-         [last_header : Header])]
+         [last-header : Header])]
 
 [Transaction ([kind : Integer]
               [inputs : (Listof CoinID)]
