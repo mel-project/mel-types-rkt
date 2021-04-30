@@ -7,7 +7,9 @@
          coindata->hashmap
          coindataheight->hashmap
          header->hashmap
-         transaction->hashmap)
+         transaction->hashmap
+         header-default
+         map-mels-to-hm)
 
 (define (coinid->hashmap c)
   `#hasheq((txhash . ,(CoinID-txhash c))
@@ -50,3 +52,34 @@
            (dosc_speed        . (Header-dosc-speed e))
            (pools_hash        . (Header-pools-hash e))
            (stakes_hash       . (Header-stakes-hash e))))
+
+(define (header-default)
+  (Header "main-net"
+          "" ; previous
+          0  ; height
+          "" ; history_hash
+          "" ; coins_hash
+          "" ; transactions_hash
+          0  ; fee_pool 
+          1  ; fee_multiplier
+          1  ; dosc_speed
+          "" ; pools_hash
+          "" ; stakes_hash
+  ))
+
+; Fold a list of mel types into hashmaps
+(define (map-mels-to-hm l)
+  (println l)
+  (println "")
+  (if (null? l) l
+    (cons
+      (let ([h (car l)])
+        (cond
+          [(CoinData? h) (coindata->hashmap h)]
+          [(CoinDataHeight? h) (coindataheight->hashmap h)]
+          [(Transaction? h) (transaction->hashmap h)]
+          [(CovEnv? h) (covenv->hashmap h)]
+          [(Header? h) (header->hashmap h)]
+          [(CoinID? h) (coinid->hashmap h)]
+          [(list? h) (map-mels-to-hm h)]))
+      (map-mels-to-hm (cdr l)))))

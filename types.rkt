@@ -5,6 +5,9 @@
 ;(provide (struct-out CoinID) CoinID-txhash CoinID-index)
 (provide (struct-out CoinID)
          (struct-out CoinDataHeight)
+         (struct-out Header)
+         (struct-out CovEnv)
+         (struct-out Transaction)
          (struct-out CoinData))
 
 (define-json-types
