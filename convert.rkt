@@ -37,7 +37,7 @@
 (define (covenv->hashmap e)
   `#hasheq((parent_coinid . ,(coinid->hashmap (CovEnv-coin-id e)))
            (parent_cdh    . ,(coindataheight->hashmap (CovEnv-coin-data-height e)))
-           (spender_idx   . ,(CovEnv-spender-index e))
+           (spender_index   . ,(CovEnv-spender-index e))
            (last_header   . ,(header->hashmap (CovEnv-last-header e)))))
 
 (define (header->hashmap e)
@@ -54,17 +54,17 @@
            (stakes_hash       . ,(Header-stakes-hash e))))
 
 (define (header-default)
-  (Header "main-net"
-          "" ; previous
+  (Header 1  ; main-net
+          "0000000000000000000000000000000000000000000000000000000000000000" ; previous
           0  ; height
-          "" ; history_hash
-          "" ; coins_hash
-          "" ; transactions_hash
+          "0000000000000000000000000000000000000000000000000000000000000000" ; history_hash
+          "0000000000000000000000000000000000000000000000000000000000000000" ; coins_hash
+          "0000000000000000000000000000000000000000000000000000000000000000" ; transactions_hash
           0  ; fee_pool 
           1  ; fee_multiplier
           1  ; dosc_speed
-          "" ; pools_hash
-          "" ; stakes_hash
+          "0000000000000000000000000000000000000000000000000000000000000000" ; pools_hash
+          "0000000000000000000000000000000000000000000000000000000000000000" ; stakes_hash
   ))
 
 ; Fold a list of mel types into hashmaps

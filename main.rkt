@@ -11,8 +11,9 @@
     0
     "6d"
     ; additional data
-    ""))
+    "2ada83c1819a5372dae1238fc1ded123c8104fdaa15862aaee69428a1820fcda"))
 
+; Test tx as a user would define for their test env
 (define (exec-env covhash)
   (list
     (list
@@ -35,11 +36,6 @@
         (list)))))
 
 
-(let* ([x "test"]
-       [covhash "sdf"]
-       ;[covhash (read-line (current-input-port))]
-       [js-str (jsexpr->string (coinid->hashmap (CoinID covhash 0)))])
-  ;(println js-str)
-  ;(println (map-mels-to-hm (exec-env covhash)))
-  (println (jsexpr->string (map-mels-to-hm (exec-env covhash)))))
-  ;(write-json js-str (open-output-file "tmp.test")))
+; Read the covenant hash from stdin and generate a json test tx on stdout
+(let* ([covhash (read-line (current-input-port))])
+  (displayln (jsexpr->string (map-mels-to-hm (exec-env covhash)))))

@@ -22,7 +22,7 @@
 [CoinDataHeight ([coin-data : CoinData]
                  [height : Integer])]
 
-[Header ([network : String]
+[Header ([network : Integer]
          [previous : String]
          [height : Integer]
          [history-hash : String]
