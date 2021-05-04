@@ -17,7 +17,8 @@
      CoinDataHeight
      Header
      CovEnv
-     Transaction))
+     Transaction
+     (Listof MelStruct)))
 
 
 (define-json-types
