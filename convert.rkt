@@ -8,48 +8,18 @@
 
 (: melstruct->hashmap (-> MelStruct JsonExpr))
 (define (melstruct->hashmap h)
-  (cond
-    [(CoinData? h) (coindata->hashmap h)]
-    [(CoinDataHeight? h) (coindataheight->hashmap h)]
-    [(Transaction? h) (transaction->hashmap h)]
-    [(CovEnv? h) (covenv->hashmap h)]
-    [(Header? h) (header->hashmap h)]
-    [(CoinID? h) (coinid->hashmap h)]
-    [(list? h) (map melstruct->hashmap h)]))
-
-(define-type JsonExpr
-  (U Boolean
-     String
-     Integer
-     (Listof JsonExpr)
-     (HashTable Symbol JsonExpr)))
-
-(: coinid->hashmap (-> CoinID JsonExpr))
-(define (coinid->hashmap c)
-  (match c
+  (match h
     [(CoinID txhash index)
      `#hasheq((txhash . ,txhash)
-              (index  . ,index))]))
-
-(: coindata->hashmap (-> CoinData JsonExpr))
-(define (coindata->hashmap c)
-  (match c
+              (index  . ,index))]
     [(CoinData covhash value denom additional-data)
      `#hasheq((covhash . ,covhash)
               (value   . ,value)
               (denom   . ,denom)
-              (additional_data . ,additional-data))]))
-
-(: coindataheight->hashmap (-> CoinDataHeight JsonExpr))
-(define (coindataheight->hashmap c)
-  (match c
+              (additional_data . ,additional-data))]
     [(CoinDataHeight coin-data height)
-     `#hasheq((coin_data . ,(coindata->hashmap coin-data))
-              (height    . ,height))]))
-
-(: transaction->hashmap (-> Transaction JsonExpr))
-(define (transaction->hashmap t)
-  (match t
+     `#hasheq((coin_data . ,(melstruct->hashmap coin-data))
+              (height    . ,height))]
     [(Transaction kind inputs outputs fee scripts data sigs)
      `#hasheq((kind    . ,kind)
               (inputs  . ,(melstruct->hashmap inputs))
@@ -57,16 +27,24 @@
               (fee     . ,fee)
               (scripts . ,scripts)
               (data    . ,data)
-              (sigs    . ,sigs))]))
-
-(: covenv->hashmap (-> CovEnv JsonExpr))
-(define (covenv->hashmap e)
-  (match e
+              (sigs    . ,sigs))]
     [(CovEnv coin-id coin-data-height spender-index last-header)
-     `#hasheq((parent_coinid . ,(coinid->hashmap coin-id))
-              (parent_cdh    . ,(coindataheight->hashmap coin-data-height))
+     `#hasheq((parent_coinid . ,(melstruct->hashmap coin-id))
+              (parent_cdh    . ,(melstruct->hashmap coin-data-height))
               (spender_index   . ,spender-index)
-              (last_header   . ,(header->hashmap last-header)))]))
+              (last_header   . ,(melstruct->hashmap last-header)))]
+    ;; last case in another function, just for illustration
+    [(? Header? head) (header->hashmap h)]
+    [(? list? other)
+     ;; compiler knows that other is of type (Listof MelStruct)
+     (map melstruct->hashmap other)]))
+
+(define-type JsonExpr
+  (U Boolean
+     String
+     Integer
+     (Listof JsonExpr)
+     (HashTable Symbol JsonExpr)))
 
 (: header->hashmap (-> Header JsonExpr))
 (define (header->hashmap e)
