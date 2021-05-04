@@ -9,46 +9,36 @@
          header->hashmap
          transaction->hashmap
          header-default
-         melstruct->hashmap)
+         map-mels-to-hm)
 
 (define (coinid->hashmap c)
-  (match c
-    [(CoinID txhash index)
-     `#hasheq((txhash . ,txhash)
-              (index  . ,index))]))
+  `#hasheq((txhash . ,(CoinID-txhash c))
+           (index  . ,(CoinID-index c))))
 
 (define (coindata->hashmap c)
-  (match c
-    [(CoinData covhash value denom additional-data)
-     `#hasheq((covhash . ,covhash)
-              (value   . ,value)
-              (denom   . ,denom)
-              (additional_data . ,additional-data))]))
+  `#hasheq((covhash . ,(CoinData-covhash c))
+           (value   . ,(CoinData-value c))
+           (denom   . ,(CoinData-denom c))
+           (additional_data . ,(CoinData-additional_data c))))
 
 (define (coindataheight->hashmap c)
-  (match c
-    [(CoinDataHeight coin-data height)
-     `#hasheq((coin_data . ,(coindata->hashmap coin-data))
-              (height    . ,height))]))
+  `#hasheq((coin_data . ,(coindata->hashmap (CoinDataHeight-coin-data c)))
+           (height    . ,(CoinDataHeight-height c))))
 
 (define (transaction->hashmap t)
-  (match t
-    [(Transaction kind inputs outputs fee scripts data sigs)
-     `#hasheq((kind    . ,kind)
-              (inputs  . ,(melstruct->hashmap inputs))
-              (outputs . ,(melstruct->hashmap outputs))
-              (fee     . ,fee)
-              (scripts . ,scripts)
-              (data    . ,data)
-              (sigs    . ,sigs))]))
+  `#hasheq((kind    . ,(Transaction-kind t))
+           (inputs  . ,(map-mels-to-hm (Transaction-inputs t)))
+           (outputs . ,(map-mels-to-hm (Transaction-outputs t)))
+           (fee     . ,(Transaction-fee t))
+           (scripts . ,(Transaction-scripts t))
+           (data    . ,(Transaction-data t))
+           (sigs    . ,(Transaction-sigs t))))
 
 (define (covenv->hashmap e)
-  (match e
-    [(CovEnv coin-id coin-data-height spender-index last-header)
-     `#hasheq((parent_coinid . ,(coinid->hashmap coin-id))
-              (parent_cdh    . ,(coindataheight->hashmap coin-data-height))
-              (spender_index   . ,spender-index)
-              (last_header   . ,(header->hashmap last-header)))]))
+  `#hasheq((parent_coinid . ,(coinid->hashmap (CovEnv-coin-id e)))
+           (parent_cdh    . ,(coindataheight->hashmap (CovEnv-coin-data-height e)))
+           (spender_index   . ,(CovEnv-spender-index e))
+           (last_header   . ,(header->hashmap (CovEnv-last-header e)))))
 
 (define (header->hashmap e)
   `#hasheq((network           . ,(Header-network e))
@@ -75,14 +65,21 @@
           1  ; dosc_speed
           "0000000000000000000000000000000000000000000000000000000000000000" ; pools_hash
           "0000000000000000000000000000000000000000000000000000000000000000" ; stakes_hash
-          ))
-  
-(define (melstruct->hashmap h)
-  (cond
-    [(CoinData? h) (coindata->hashmap h)]
-    [(CoinDataHeight? h) (coindataheight->hashmap h)]
-    [(Transaction? h) (transaction->hashmap h)]
-    [(CovEnv? h) (covenv->hashmap h)]
-    [(Header? h) (header->hashmap h)]
-    [(CoinID? h) (coinid->hashmap h)]
-    [(list? h) (map melstruct->hashmap h)]))
+  ))
+
+; Fold a list of mel types into hashmaps
+(define (map-mels-to-hm l)
+  ;(println l)
+  ;(println "")
+  (if (null? l) l
+    (cons
+      (let ([h (car l)])
+        (cond
+          [(CoinData? h) (coindata->hashmap h)]
+          [(CoinDataHeight? h) (coindataheight->hashmap h)]
+          [(Transaction? h) (transaction->hashmap h)]
+          [(CovEnv? h) (covenv->hashmap h)]
+          [(Header? h) (header->hashmap h)]
+          [(CoinID? h) (coinid->hashmap h)]
+          [(list? h) (map-mels-to-hm h)]))
+      (map-mels-to-hm (cdr l)))))

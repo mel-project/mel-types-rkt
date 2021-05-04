@@ -37,5 +37,5 @@
 
 
 ; Read the covenant hash from stdin and generate a json test tx on stdout
-(let ([covhash (read-line (current-input-port))])
-  (displayln (jsexpr->string (melstruct->hashmap (exec-env covhash)))))
+(let* ([covhash (read-line (current-input-port))])
+  (displayln (jsexpr->string (map-mels-to-hm (exec-env covhash)))))
