@@ -1,6 +1,7 @@
 #lang racket
 
 (require json)
+(require file/sha1)
 (require "types.rkt")
 (require "convert.rkt")
 
@@ -18,7 +19,8 @@
   (list
     (list
       (CovEnv
-        (coinid0 covhash)
+        ; parent coinid
+        (coinid0 dummy-txhash)
         (CoinDataHeight
           (coindata0 covhash)
           0) ; height
@@ -26,7 +28,9 @@
         (header-default))
       (Transaction
         0 ; kind
-        (list (coinid0 covhash))
+        ; inputs
+        (list (coinid0 dummy-txhash))
+        ; outputs
         (list (coindata0 covhash))
         0 ; fee
         (list) ; scripts
@@ -34,6 +38,10 @@
         "0000000000000000000000000000000000000000000000000000000000000000"
         ;sigs
         (list)))))
+
+; Generate random 256bit string. Doesn't even 
+(define dummy-txhash
+  (bytes->hex-string (sha256-bytes #"abc")))
 
 
 ; Read the covenant hash from stdin and generate a json test tx on stdout
