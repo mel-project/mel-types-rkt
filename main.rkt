@@ -15,7 +15,7 @@
     "2ada83c1819a5372dae1238fc1ded123c8104fdaa15862aaee69428a1820fcda"))
 
 ; Test tx as a user would define for their test env
-(define (exec-env covhash)
+(define (exec-env covhash covbins)
   (list
     (list
       (CovEnv
@@ -33,7 +33,7 @@
         ; outputs
         (list (coindata0 covhash))
         0 ; fee
-        (list) ; scripts
+        covbins ; scripts
         ; data
         "0000000000000000000000000000000000000000000000000000000000000000"
         ;sigs
@@ -43,7 +43,24 @@
 (define dummy-txhash
   (bytes->hex-string (sha256-bytes #"abc")))
 
+;(: input-file (Parameter String))
+(define bin-filename (make-parameter ""))
+
+; Command line args
+;(input-file
+    (command-line
+      #:program "main"
+      #:once-each
+      [("-f" "--file") filename "Binary file of covenant script"
+                       (bin-filename filename)]
+      );)
 
 ; Read the covenant hash from stdin and generate a json test tx on stdout
 (let ([covhash (read-line (current-input-port))])
-  (displayln (jsexpr->string (melstruct->hashmap (exec-env covhash)))))
+  (define covbins
+    (if (non-empty-string? (bin-filename))
+      (list (bytes->hex-string (file->bytes (string->path (bin-filename))
+                                            #:mode 'binary)))
+      (list)))
+
+  (displayln (jsexpr->string (melstruct->hashmap (exec-env covhash covbins)))))
